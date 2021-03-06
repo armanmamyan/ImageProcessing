@@ -1,0 +1,55 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    margin: 0;
+    width: 100%;
+}
+
+.image--filter-container{
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    max-width: 1400px;
+    width: 100%;
+    margin: 100px auto;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    padding: 20px;
+}
+
+#imageCanvas{
+    width: calc(100% - 25%);
+    height: 550px;
+    border: 1px solid rgb(0 0 0 / 15%);
+    border-radius: 5px;
+    image-rendering: pixelated;
+}
+
+.image--filter-control-container{
+    align-self: flex-start;
+    flex: 0 0 20%;
+    
+}
+
+.filter--control-group{
+    display: flex;
+    flex-direction: column; 
+    padding: 8px 0;
+}
+
+.image--filter-control-container > div + div{
+    margin-top: 24px;
+    border-top: 1px solid #eee;
+}
+
+.sourceImage{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% - 25%);
+    height: 550px;
+    opacity: 0;
+    pointer-events: none;
+}

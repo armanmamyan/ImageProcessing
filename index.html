@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <main class="image--filter-container">
+        <img src="./iamge.png" class="sourceImage">
+      <canvas id="imageCanvas"></canvas>
+      <aside class="image--filter-control-container">
+        <div class="filter--control-group">
+          <label for="" class="filter--control-name">Brightness</label>
+          <input type="range" min="-100" max="100" value="0" name='brightness' class="filter--control-input" />
+        </div>
+        <div class="filter--control-group">
+          <label for="" class="filter--control-name">Contrast</label>
+          <input type="range" min="0" max="255" value="0" name='contrast' class="filter--control-input" />
+        </div>
+        <div class="filter--control-group">
+          <label for="" class="filter--control-name">Saturate</label>
+          <input type="range" min="0" max="100" value="0" name="saturation" class="filter--control-input" />
+        </div>
+        <div class="filter--control-group">
+          <button class="filter-buttons" name="grayscale">Grayscale</button>
+        </div>
+        <div class="filter--control-group">
+          <button class="filter-buttons" name="colorInversion">Invert</button>
+        </div>
+        <div class="filter--control-group">
+            <button class="filter-buttons" name="sepia">Sepia</button>
+          </div>
+        <button id="paint">Paint</button>
+      </aside>
+    </main>
+    <script src="./main.js"></script>
+  </body>
+</html>
