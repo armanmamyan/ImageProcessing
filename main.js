@@ -1,12 +1,24 @@
 const canvas = document.querySelector('#imageCanvas');
-const sourceImage = document.querySelector('.sourceImage');
+const grayscaleCanvas = document.querySelector('#grayscaleCanvas');
+const inversionCanvas = document.querySelector('#inversionCanvas');
+const sepiaCanvas = document.querySelector('#sepiaCanvas');
+const uploadPhoto = document.querySelector('#fileId');
 const ctx = canvas.getContext('2d');
-const testBtn = document.querySelector('#test');
-const buttons = document.querySelectorAll('.filter-buttons');
-const inputs = document.querySelectorAll('.filter--control-input');
-const paint = document.querySelector('#paint');
+const ctx2 = grayscaleCanvas.getContext('2d');
+const ctx3 = inversionCanvas.getContext('2d');
+const ctx4 = sepiaCanvas.getContext('2d');
 
-const drawImage = (image) => {
+const uploadBtn = document.querySelector('.btn--file');
+const buttons = document.querySelectorAll('.filter--control-grid .filter--control-group');
+const inputs = document.querySelectorAll('.filter--control-input');
+const gradientInputA = document.querySelector('#head');
+const gradientInputB = document.querySelector('#body');
+const applyGradientBtn = document.querySelector('#applyGradient');
+
+let sourceImage;
+const gradientValues = [];
+
+const drawImageOnMainCanvas = (image) => {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     ctx.drawImage(image, 0, 0,  canvas.width, canvas.height);
@@ -103,13 +115,93 @@ const saturation = (data,value) => {
     }
 }
 
+const createGradient = (colorA, colorB) => {   
+    // Values of the gradient from colorA to colorB
+    var gradient = [];
+    // the maximum color value is 255
+    var maxValue = 255;
+    // Convert the hex color values to RGB object
+    var from = getRGBColor(colorA);
+    var to = getRGBColor(colorB);
+    
+    // Creates 256 colors from Color A to Color B
+    for (var i = 0; i <= maxValue; i++) {
+      // IntensityB will go from 0 to 255
+      // IntensityA will go from 255 to 0
+      // IntensityA will decrease intensity while instensityB will increase
+      // What this means is that ColorA will start solid and slowly transform into ColorB
+      // If you look at it in other way the transparency of color A will increase and the transparency of color B will decrease
+      var intensityB = i;
+      var intensityA = maxValue - intensityB;
+      
+      // The formula below combines the two color based on their intensity
+      // (IntensityA * ColorA + IntensityB * ColorB) / maxValue
+      gradient[i] = {
+        r: (intensityA*from.r + intensityB*to.r) / maxValue,
+        g: (intensityA*from.g + intensityB*to.g) / maxValue,
+        b: (intensityA*from.b + intensityB*to.b) / maxValue
+      };
+    }
+  
+    return gradient;
+  }
+
+  // Helper function to convert 6digit hex values to a RGB color object
+const getRGBColor = (hex) => {
+  var colorValue;
+
+  if (hex[0] === '#') {
+    hex = hex.substr(1);
+  }
+  
+  colorValue = parseInt(hex, 16);
+  
+  return {
+    r: colorValue >> 16,
+    g: (colorValue >> 8) & 255,
+    b: colorValue & 255
+  }
+}
+
+
+  const drawSmallCanvases = (image) => {
+    grayscaleCanvas.width = grayscaleCanvas.clientWidth;
+    grayscaleCanvas.height = grayscaleCanvas.clientHeight;
+    inversionCanvas.width = inversionCanvas.clientWidth;
+    inversionCanvas.height = inversionCanvas.clientHeight;
+    sepiaCanvas.width = sepiaCanvas.clientWidth;
+    sepiaCanvas.height = sepiaCanvas.clientHeight;
+    ctx2.drawImage(image, 0, 0,  grayscaleCanvas.width, grayscaleCanvas.height);
+    ctx3.drawImage(image, 0, 0,  inversionCanvas.width, inversionCanvas.height);
+    ctx4.drawImage(image, 0, 0,  sepiaCanvas.width, sepiaCanvas.height);
+    
+    const  imageData = ctx2.getImageData(0,0, grayscaleCanvas.width,grayscaleCanvas.height);
+        staticGrayScale(imageData.data);
+        ctx2.putImageData(imageData, 0, 0);
+    
+    const  imageData2 = ctx3.getImageData(0,0, inversionCanvas.width,inversionCanvas.height);
+        colorInversion(imageData2.data);
+        ctx3.putImageData(imageData2, 0, 0);
+    
+    const imageData3 = ctx4.getImageData(0,0, sepiaCanvas.width,sepiaCanvas.height);
+        staticSepia(imageData3.data);
+        ctx4.putImageData(imageData3, 0, 0);
+    
+}
+
+
+//  Code Correct
+const restoreGradientValues = ({name,value}) => {
+    if(name === 'head') gradientValues[0] = value;
+    if(name === 'body') gradientValues[1] = value;
+}
 
 buttons.forEach(btn =>{
     btn.addEventListener('click', e => {
         const target = e.currentTarget;
         let imageData;
-        switch (target.name) {
-            case 'colorInversion':
+        switch (target.dataset.type) {
+            case 'inversion':
                 // redrawImage();
                 imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
                 colorInversion(imageData.data);
@@ -136,9 +228,10 @@ buttons.forEach(btn =>{
             default:
                 break;
         }
-
     });
 });
+
+
 inputs.forEach(btn =>{
     btn.addEventListener('change', e => {
         const target = e.currentTarget;
@@ -146,7 +239,7 @@ inputs.forEach(btn =>{
 
         switch (target.name) {
             case 'contrast':
-                redrawImage();
+                // redrawImage();
                 imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
                 applyContrast(imageData.data, parseInt(target.value, 10));
                 ctx.putImageData(imageData,0,0);
@@ -154,7 +247,7 @@ inputs.forEach(btn =>{
                 // ctx.filter = `contrast(${target.value}%)`;
                 break;
             case 'brightness':
-                redrawImage();
+                // redrawImage();
                 imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
                 applyBrightness(imageData.data, parseInt(target.value, 10));
                 ctx.putImageData(imageData,0,0);
@@ -162,7 +255,7 @@ inputs.forEach(btn =>{
                 // ctx.filter = `brightness(${target.value}%)`;
                 break;
             case 'saturation':
-                redrawImage();
+                // redrawImage();
                 imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
                 saturation(imageData.data, parseInt(target.value, 10));
                 ctx.putImageData(imageData,0,0);
@@ -174,6 +267,52 @@ inputs.forEach(btn =>{
         }
 
     });
-})
+});
 
-paint.addEventListener('click', () => drawImage(sourceImage));
+uploadPhoto.addEventListener('change', e => {
+    const getFile = e.target.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", function () {
+        const res = reader.result;
+        const offScreenImage = document.createElement('img');
+        offScreenImage.src = res;
+        sourceImage = offScreenImage;
+        offScreenImage.onload = function(){
+            drawImageOnMainCanvas(offScreenImage);
+            drawSmallCanvases(offScreenImage)
+        }
+      });
+
+    reader.readAsDataURL(getFile);
+    
+});
+
+const defaults = ["#e66465", "#f6b73c"];
+applyGradientBtn.addEventListener('click', () => {
+    const value = !!gradientValues.length ? gradientValues : defaults;
+    console.log(gradientValues);
+    const gradientColors = createGradient(...value);
+    redrawImage();
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < imageData.data.length; i += 4) {
+        // Get the each channel color value
+        const redValue = imageData.data[i];
+        const greenValue = imageData.data[i+1];
+        const blueValue = imageData.data[i+2];
+      
+        // Mapping the color values to the gradient index
+        // Replacing the grayscale color value with a color for the duotone gradient
+        imageData.data[i] = gradientColors[redValue].r;
+        imageData.data[i+1] = gradientColors[greenValue].g;
+        imageData.data[i+2] = gradientColors[blueValue].b;
+        imageData.data[i+3] = 255;
+      }
+      ctx.putImageData(imageData,0,0);
+});
+
+
+gradientInputA.addEventListener('change', e => restoreGradientValues(e.target));
+gradientInputB.addEventListener('change', e => restoreGradientValues(e.target));
+
+uploadBtn.addEventListener('click', () => uploadPhoto.click());

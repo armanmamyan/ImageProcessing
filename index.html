@@ -9,7 +9,6 @@
   </head>
   <body>
     <main class="image--filter-container">
-        <img src="./iamge.png" class="sourceImage">
       <canvas id="imageCanvas"></canvas>
       <aside class="image--filter-control-container">
         <div class="filter--control-group">
@@ -25,15 +24,36 @@
           <input type="range" min="0" max="100" value="0" name="saturation" class="filter--control-input" />
         </div>
         <div class="filter--control-group">
-          <button class="filter-buttons" name="grayscale">Grayscale</button>
-        </div>
-        <div class="filter--control-group">
-          <button class="filter-buttons" name="colorInversion">Invert</button>
-        </div>
-        <div class="filter--control-group">
-            <button class="filter-buttons" name="sepia">Sepia</button>
+          <label class="filter--control-name">Gradient</label>
+          <div class="flex gradient--input-group">
+              <input type="color" id="head" name="head"
+              value="#e66465">
+              <input type="color" id="body" name="body"
+              value="#f6b73c">
+              <button id="applyGradient" data-type = 'gradient' class="submit--btn">Apply</button>
           </div>
-        <button id="paint">Paint</button>
+        </div>
+        <div class="filter--control-grid">
+            <div class="filter--control-group" data-type = 'grayscale'>
+              <canvas id="grayscaleCanvas" class="filter--control-canvas"></canvas>
+              <span class="filter--control-label">Grayscale</span>
+            </div>
+            <div class="filter--control-group" data-type = 'inversion'>
+              <canvas id="inversionCanvas" class="filter--control-canvas"></canvas>
+              <span class="filter--control-label">Invert</span>
+            </div>
+            <div data-type = 'sepia' class="filter--control-group" >
+              <canvas id="sepiaCanvas" class="filter--control-canvas"></canvas>
+              <span class="filter--control-label">Sepia</span>
+            </div>
+        </div>
+        <div class="buttons">
+          <button id="resetBtn" class="custom--btn">Reset Changes</button>
+          <div class="file--wrapper">
+            <button class="custom--btn btn--file">Choose File</button>
+            <input id="fileId" type="file" class="upload--photo"> 
+          </div>
+        </div>
       </aside>
     </main>
     <script src="./main.js"></script>
