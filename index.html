@@ -33,6 +33,14 @@
               <button id="applyGradient" data-type = 'gradient' class="submit--btn">Apply</button>
           </div>
         </div>
+        <div class="filter--control-group">
+          <label class="filter--control-name">Glitch Effect</label>
+          <div class="flex gradient--input-group">
+            <input id="rOffset" type="range" min="-100" max="100" step="5" />
+            <input id="gOffset" type="range" min="-100" max="100" step="5" />
+            <input id="bOffset" type="range" min="-100" max="100" step="5" />
+          </div>
+        </div>
         <div class="filter--control-grid">
             <div class="filter--control-group" data-type = 'grayscale'>
               <canvas id="grayscaleCanvas" class="filter--control-canvas"></canvas>

@@ -14,6 +14,9 @@ const inputs = document.querySelectorAll('.filter--control-input');
 const gradientInputA = document.querySelector('#head');
 const gradientInputB = document.querySelector('#body');
 const applyGradientBtn = document.querySelector('#applyGradient');
+const rOffsetInput = document.getElementById("rOffset");
+const gOffsetInput = document.getElementById("gOffset");
+const bOffsetInput = document.getElementById("bOffset");
 
 let sourceImage;
 const gradientValues = [];
@@ -164,7 +167,7 @@ const getRGBColor = (hex) => {
 }
 
 
-  const drawSmallCanvases = (image) => {
+const drawSmallCanvases = (image) => {
     grayscaleCanvas.width = grayscaleCanvas.clientWidth;
     grayscaleCanvas.height = grayscaleCanvas.clientHeight;
     inversionCanvas.width = inversionCanvas.clientWidth;
@@ -187,6 +190,33 @@ const getRGBColor = (hex) => {
         staticSepia(imageData3.data);
         ctx4.putImageData(imageData3, 0, 0);
     
+}
+
+const rgbSplit = (imageData, options) => {
+    // destructure the offset values from options, default to 0
+    const { rOffset = 0, gOffset = 0, bOffset = 0 } = options; 
+    // clone the pixel array from original imageData
+    const originalArray = imageData.data;
+    const newArray = new Uint8ClampedArray(originalArray);
+    // loop through every pixel and assign values to the offseted position
+    for (let i = 0; i < originalArray.length; i += 4) {
+      newArray[i + 0 + rOffset * 4] = originalArray[i + 0]; // 🔴
+      newArray[i + 1 + gOffset * 4] = originalArray[i + 1]; // 🟢
+      newArray[i + 2 + bOffset * 4] = originalArray[i + 2]; // 🔵
+    }
+    // return a new ImageData object
+    return new ImageData(newArray, imageData.width, imageData.height);
+}
+
+
+const updateGlitchCanvas = () => {
+    const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const updateImageData = rgbSplit(imageData, {
+        rOffset: Number(rOffsetInput.value), 
+        gOffset: Number(gOffsetInput.value),
+        bOffset: Number(bOffsetInput.value)
+    })
+    ctx.putImageData(updateImageData, 0, 0);
 }
 
 
@@ -268,6 +298,10 @@ inputs.forEach(btn =>{
 
     });
 });
+
+rOffsetInput.addEventListener("input", updateGlitchCanvas);
+gOffsetInput.addEventListener("input", updateGlitchCanvas);
+bOffsetInput.addEventListener("input", updateGlitchCanvas);
 
 uploadPhoto.addEventListener('change', e => {
     const getFile = e.target.files[0];
